@@ -125,3 +125,36 @@ by_sex_class %>% do(mean(by_sex_class$Age, na.rm = T))
 replaced_na <- rbind(not_na_values, na_values)
 replaced_na
 write.csv(replaced_na, "titanic_na_replaced.csv")
+
+not_na_values_test <- as.tbl(titanic_test[!is.na(titanic_test$Age), ])
+na_values_test<- as.tbl(titanic_test[is.na(titanic_test$Age), ])
+na_values_test
+not_na_values_test
+
+
+by_sex_class_test <- group_by(titanic_test, Sex, Pclass)
+
+by_sex_class_sum_test <- dplyr::summarise(
+  by_sex_class_test,
+  number = n(),
+  average_age = mean(Age, na.rm= T)
+)
+by_sex_class_sum_test
+
+
+na_values_test[na_values_test$Pclass==1& na_values_test$Sex == "female","Age"] =
+  by_sex_class_sum_test[by_sex_class_sum_test$Pclass==1& by_sex_class_sum_test$Sex == "female","average_age"]
+na_values_test[na_values_test$Pclass==2& na_values_test$Sex == "female","Age"] =
+  by_sex_class_sum_test[by_sex_class_sum_test$Pclass==2& by_sex_class_sum_test$Sex == "female","average_age"]
+na_values_test[na_values_test$Pclass==3& na_values_test$Sex == "female","Age"] =
+  by_sex_class_sum_test[by_sex_class_sum_test$Pclass==3& by_sex_class_sum_test$Sex == "female","average_age"]
+na_values_test[na_values_test$Pclass==1& na_values_test$Sex == "male","Age"] =
+  by_sex_class_sum_test[by_sex_class_sum_test$Pclass==1& by_sex_class_sum_test$Sex == "male","average_age"]
+na_values_test[na_values_test$Pclass==2& na_values_test$Sex == "male","Age"] =
+  by_sex_class_sum_test[by_sex_class_sum_test$Pclass==2& by_sex_class_sum_test$Sex == "male","average_age"]
+na_values_test[na_values_test$Pclass==3& na_values_test$Sex == "male","Age"] =
+  by_sex_class_sum_test[by_sex_class_sum_test$Pclass==3& by_sex_class_sum_test$Sex == "male","average_age"]
+na_values_test
+
+test_replaced_na <- rbind(not_na_values_test, na_values_test)
+write.csv(test_replaced_na, "test_na_replaced.csv")
