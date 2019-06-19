@@ -8,7 +8,9 @@ ui <- fluidPage(
   fluidRow(
     column(2, selectInput("dataset", "Select dataset", 
                 choices = c("titanic_train", "titanic_test"))),
-    column(2, selectInput("impute", "Imputation", choices = c("None", "Mean of Groups", "Mean"))),
+    column(2, selectInput("impute", "Imputation", 
+                          choices = c("None", "Mean of Groups",
+                                      "Mean", "MICE:Predictive Mean Matching"))),
     column(2,selectInput("histchoices", "Variables for Histogram", choices = "")),
     column(6,plotOutput("histogram")),
     dataTableOutput("input_data")
@@ -38,7 +40,10 @@ server <- function(input, output, session){
       data <- rbind(not_na_age, na_age)
     } else if(input$impute == "Mean"){
       data[is.na(data$Age), "Age"] = mean(data$Age, na.rm = T)
-    }
+    } else if (input$impute == "MICE:Predictive Mean Matching"){
+      temp <- mice(titanic_train, maxit = 50, m = 5, meth = "pmm", seed = 500)
+      data <- complete(temp , 1)
+    } 
     data
   })
   output$input_data <- renderDataTable({
