@@ -1,13 +1,19 @@
 library(titanic)
 library(tidyverse)
 library(plyr)
-library()
+library(mice)
 data(titanic_train)
 titanic_train
-titanic_train
+md.pattern(titanic_train)
+methods(mice)
+temp <- mice(titanic_train, maxit = 50, m = 5, meth = "pmm", seed = 500)
+complete(temp , 1)
+model_fit <- with(temp, glm(Survived~Age+Sex+Pclass))
+model_fit
+summary(pool(model_fit))
 titanic_train$Pclass
 titanic_train$Sex
-sum(is.na(titanic_train$Age))
+sum(is.na(titanic_train$Pclass))
 titanic_test
 titanic_train <- as.tbl(titanic_train)
 by_sex <- group_by(titanic_train, Sex)
@@ -44,6 +50,8 @@ by_age_sum[,-c(2:3, 4,5,8)]
 by_age_sum[,-c(2:7)]
 by_age_Survived <- by_age[by_age$Survived == 1,]
 by_age <- group_by(titanic_train, Parch)
+ggplot(titanic_train, aes(x = as.factor(Sex)))+
+  geom_bar(aes(fill = as.factor(Survived)))
 ggplot(by_age, aes(x = Age_group)) +
   geom_bar(aes(fill = Sex),  position = "dodge")
 ggplot(by_age, aes(x = Sex))+
@@ -141,9 +149,9 @@ by_sex_class_sum_test <- dplyr::summarise(
 )
 by_sex_class_sum_test
 
-
-na_values_test[na_values_test$Pclass==1& na_values_test$Sex == "female","Age"] =
-  by_sex_class_sum_test[by_sex_class_sum_test$Pclass==1& by_sex_class_sum_test$Sex == "female","average_age"]
+na_values_test
+na_values_test[na_values_test[["Pclass"]]==1& na_values_test[["Sex"]]== "female","Age"] =
+  by_sex_class_sum_test[by_sex_class_sum_test[["Pclass"]]==1& by_sex_class_sum_test[["Sex"]] == "female","average_age"]
 na_values_test[na_values_test$Pclass==2& na_values_test$Sex == "female","Age"] =
   by_sex_class_sum_test[by_sex_class_sum_test$Pclass==2& by_sex_class_sum_test$Sex == "female","average_age"]
 na_values_test[na_values_test$Pclass==3& na_values_test$Sex == "female","Age"] =
@@ -157,4 +165,5 @@ na_values_test[na_values_test$Pclass==3& na_values_test$Sex == "male","Age"] =
 na_values_test
 
 test_replaced_na <- rbind(not_na_values_test, na_values_test)
-write.csv(test_replaced_na, "test_na_replaced.csv")
+titanic_train
+eval(parse(text = "titanic_train"))
